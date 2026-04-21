@@ -52,6 +52,9 @@ function migrateState(state) {
   if (!Array.isArray(state.graveyard)) state.graveyard = [];
   if (!state.daily) state.daily = { date: '', tasks: [], bonusClaimed: false };
 
+  // v0.7.0 技能树
+  if (!state.skillAlloc) state.skillAlloc = {};
+
   return state;
 }
 

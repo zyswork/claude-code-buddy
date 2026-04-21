@@ -10,6 +10,7 @@ const { renderSprite, renderFace } = require('./lib/sprites.js');
 const { readState, updateState } = require('./lib/state.js');
 const { getCharacter, currentFormId } = require('./lib/characters.js');
 const { xpProgress, EVOLUTION_LABELS, computeEvolution } = require('./lib/progression.js');
+const { moodBadge } = require('./lib/mood.js');
 const {
   RARITY_STARS, RARITY_COLORS, STAT_NAMES, STAT_NAMES_CN,
   RESET_COLOR, BOLD,
@@ -86,7 +87,8 @@ function renderCard(bones, soul, state) {
   const xpBar = renderProgressBar(prog.inLevel, prog.nextNeed, 20);
   const bondBar = renderProgressBar(bond, 100, 10);
 
-  lines.push(`  ${BOLD}Lv ${prog.level}${RESET_COLOR}  ${EVOLUTION_LABELS[evo]}`);
+  const mood = moodBadge(state);
+  lines.push(`  ${BOLD}Lv ${prog.level}${RESET_COLOR}  ${EVOLUTION_LABELS[evo]}   ${mood.emoji} ${mood.label}`);
   lines.push(`  XP ${xpBar} ${prog.inLevel}/${prog.nextNeed}`);
   lines.push(`  ♥  ${bondBar} ${bond}/100`);
 
@@ -103,9 +105,13 @@ function renderCard(bones, soul, state) {
   lines.push('');
 
   lines.push('  ── 属性 ──');
+  const alloc = state?.skillAlloc || {};
   for (const stat of STAT_NAMES) {
-    const v = bones.stats[stat];
-    lines.push(`  ${padRight(STAT_NAMES_CN[stat], 6)} ${renderStatBar(v)}  ${v}`);
+    const base = bones.stats[stat];
+    const add = alloc[stat] || 0;
+    const final = Math.min(100, base + add);
+    const delta = add > 0 ? ` (+${add})` : '';
+    lines.push(`  ${padRight(STAT_NAMES_CN[stat], 6)} ${renderStatBar(final)}  ${final}${delta}`);
   }
   lines.push('');
   return lines.join('\n');

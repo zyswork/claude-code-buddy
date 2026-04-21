@@ -19,6 +19,7 @@ function main() {
     xp: reward.xp,
     bond: reward.bond,
     petCount: (state.petCount || 0) + 1,
+    petAt: Date.now(),
   };
 
   // 升级/进化会生成特殊 quip 立即显示

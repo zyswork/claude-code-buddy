@@ -32,6 +32,26 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE_OPTIONS= node ${CLAUDE_PLUGIN_ROOT}/scripts/sessionStart.js"
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE_OPTIONS= node ${CLAUDE_PLUGIN_ROOT}/scripts/sessionStart.js"
+          }
+        ]
+      }
     ]
   }
 }

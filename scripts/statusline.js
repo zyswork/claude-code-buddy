@@ -11,6 +11,7 @@ const { renderFace } = require('./lib/sprites.js');
 const { readState } = require('./lib/state.js');
 const { getCharacter, currentFormId } = require('./lib/characters.js');
 const { xpProgress } = require('./lib/progression.js');
+const { moodBadge } = require('./lib/mood.js');
 const { RARITY_STARS, RARITY_COLORS, RESET_COLOR } = require('./lib/types.js');
 
 function main() {
@@ -32,9 +33,10 @@ function main() {
   const face = renderFace({ ...bones, species: formId });
   const name = state.soul.name;
 
-  // 等级标识
+  // 等级标识 + 心情 emoji
   const prog = xpProgress(state.xp || 0);
   const lvTag = `Lv${prog.level}`;
+  const mood = moodBadge(state);
 
   // 吐槽 10 秒窗口期
   let quip = '';
@@ -46,11 +48,11 @@ function main() {
 
   let output;
   if (style === 'emoji') {
-    output = `${color}${stars}${RESET_COLOR} ${emoji} ${name} ${lvTag}${quip}`;
+    output = `${color}${stars}${RESET_COLOR} ${emoji} ${name} ${lvTag} ${mood.emoji}${quip}`;
   } else if (style === 'ascii') {
-    output = `${color}${stars}${RESET_COLOR} ${color}${face}${RESET_COLOR} ${name} ${lvTag}${quip}`;
+    output = `${color}${stars}${RESET_COLOR} ${color}${face}${RESET_COLOR} ${name} ${lvTag} ${mood.emoji}${quip}`;
   } else {
-    output = `${color}${stars}${RESET_COLOR} ${emoji} ${color}${face}${RESET_COLOR} ${name} ${lvTag}${quip}`;
+    output = `${color}${stars}${RESET_COLOR} ${emoji} ${color}${face}${RESET_COLOR} ${name} ${lvTag} ${mood.emoji}${quip}`;
   }
 
   process.stdout.write(output);
