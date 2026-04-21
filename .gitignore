@@ -1,0 +1,13 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.local
+
+# 本地状态和缓存（在用户 ~/.claude/，本仓库不应有）
+buddy-state.json
+
+# 编辑器
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,20 @@
+{
+  "name": "claude-buddy",
+  "owner": {
+    "name": "zyswork",
+    "email": "zyswork123@gmail.com"
+  },
+  "metadata": {
+    "description": "ASCII 桌面伙伴 — 孵化你的专属 Claude Code 宠物，中文吐槽，陪你写代码",
+    "version": "0.4.0"
+  },
+  "plugins": [
+    {
+      "name": "claude-buddy",
+      "source": "./",
+      "description": "基于泄露源码复刻的 Claude Code 桌面伙伴：18 种物种、5 档稀有度、确定性孵化、Stop hook 中文吐槽、statusline 常驻",
+      "category": "fun",
+      "tags": ["buddy", "companion", "pet", "easter-egg", "chinese", "ascii"]
+    }
+  ]
+}

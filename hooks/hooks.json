@@ -1,0 +1,37 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE_OPTIONS= node ${CLAUDE_PLUGIN_ROOT}/scripts/observer.js"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE_OPTIONS= node ${CLAUDE_PLUGIN_ROOT}/scripts/preToolUse.js"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "NODE_OPTIONS= node ${CLAUDE_PLUGIN_ROOT}/scripts/userPromptSubmit.js"
+          }
+        ]
+      }
+    ]
+  }
+}
