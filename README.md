@@ -1,7 +1,34 @@
 # claude-buddy
 
-> 复刻 Claude Code 2026 愚人节彩蛋 `/buddy` 的插件版。
-> 孵化一只专属的 ASCII 桌面伙伴，带你写代码、吐槽你、陪你加班。
+![GitHub release](https://img.shields.io/github/v/release/zyswork/claude-code-buddy?style=flat-square)
+![License](https://img.shields.io/github/license/zyswork/claude-code-buddy?style=flat-square)
+![Stars](https://img.shields.io/github/stars/zyswork/claude-code-buddy?style=flat-square)
+![Language](https://img.shields.io/badge/language-Chinese%20%E4%B8%AD%E6%96%87-red?style=flat-square)
+
+> **复刻 Claude Code 2026 愚人节彩蛋 `/buddy` 的插件版**
+> 孵化一只专属 ASCII 桌面伙伴——会吐槽、会成长、还有 5 只神话隐藏角色等你发现。
+
+```
+  ★ COMMON
+  
+    /\__/\
+   ( ✦  ✦ )
+   =(  ..  )=
+    (")__(")
+  🐰 小墨  · 兔精  Lv 5 成年
+  
+  "又熬夜？明天咖啡多来点"    ← 它真的会说话
+```
+
+## 快速开始
+
+```bash
+/plugin marketplace add zyswork/claude-code-buddy
+/plugin install claude-buddy@claude-code-buddy
+/reload-plugins
+/claude-buddy:buddy            # 孵化
+/claude-buddy:buddy-setup      # 装 statusline 常驻
+```
 
 ## 它是什么
 
@@ -29,10 +56,10 @@
 
 ```bash
 # 1. 注册这个 repo 为 marketplace
-/plugin marketplace add zyswork/claude-buddy
+/plugin marketplace add zyswork/claude-code-buddy
 
 # 2. 安装插件
-/plugin install claude-buddy@claude-buddy
+/plugin install claude-buddy@claude-code-buddy
 
 # 3. 重载（或重启 Claude Code）
 /reload-plugins
@@ -53,17 +80,17 @@ Claude Code 支持本地目录当 marketplace：
 /plugin marketplace add /Users/zys/Code/ai/claude-buddy
 
 # 然后安装
-/plugin install claude-buddy@claude-buddy
+/plugin install claude-buddy@claude-code-buddy
 ```
 
 ### 方式 3：另一台电脑安装
 
 ```bash
 # 在目标机器上
-git clone https://github.com/zyswork/claude-buddy.git ~/code/claude-buddy
+git clone https://github.com/zyswork/claude-code-buddy.git ~/code/claude-buddy
 # 然后在 Claude Code 里
 /plugin marketplace add ~/code/claude-buddy
-/plugin install claude-buddy@claude-buddy
+/plugin install claude-buddy@claude-code-buddy
 /reload-plugins
 /claude-buddy:buddy-setup
 /claude-buddy:buddy
@@ -72,8 +99,8 @@ git clone https://github.com/zyswork/claude-buddy.git ~/code/claude-buddy
 ### 卸载
 
 ```bash
-/plugin uninstall claude-buddy@claude-buddy
-/plugin marketplace remove claude-buddy
+/plugin uninstall claude-buddy@claude-code-buddy
+/plugin marketplace remove claude-code-buddy
 # statusline 需要手动从 ~/.claude/settings.json 里删掉
 ```
 
