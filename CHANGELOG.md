@@ -1,5 +1,45 @@
 # 更新记录
 
+## v0.8.0 · 2026-04-21 — LLM 吐槽缓冲（让伙伴真会说话）
+
+旧版每次 Stop 都可能同步调 claude -p（8s 延迟），为了体验只给 30% 概率发声。新架构：**批量预生成 + 后台补充 + 缓冲即取**。
+
+### 工作原理
+
+```
+Stop hook 触发
+  └─ 30% 想说话
+      └─ 缓冲里拿最匹配当前心情的一条（0ms）
+          └─ 缓冲 <3 条？后台 detached 进程调 claude -p 批量生成 5 条
+              └─ 都失败？走预设备用池
+```
+
+**一次 claude -p 生成 5 条**，用上之后才再调；单轮对话从不阻塞。
+
+### 新增文件
+
+- `lib/quip-buffer.js` — 缓冲的数据结构 + 过期逻辑（24h TTL）
+- `scripts/refill-quips.js` — 独立后台进程，批量生成
+- `scripts/voice.js` + `/buddy-voice` — 调试命令看缓冲状态和 quip 来源
+
+### 丰富的 LLM 上下文
+
+批量生成的 prompt 现在带上：
+- 当前心情 + emoji（8 种情绪之一）
+- 等级 / 进化阶段 / 亲密度
+- 主特长属性
+- `/buddy-teach` 教过的事实（最近 5 条）
+- 当前场景（error / success / tired / lonely / hungry / ...）
+- 已解锁的隐藏角色数
+
+### 调试手段
+
+`/claude-buddy:buddy-voice` 随时看：
+- 当前心情
+- 缓冲里还有几条、各 mood 是啥
+- 最新一条 quip 的来源（buffer / claude_sync / timeEgg / fallback / evolve / levelup）
+- 提示怎么开 BUDDY_DEBUG=1 排查
+
 ## v0.7.0 · 2026-04-21 — 代码评审 + 心情体感 + 主动问候 + 技能树
 
 ### `/buddy-review` 代码评审

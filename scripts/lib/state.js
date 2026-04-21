@@ -55,6 +55,9 @@ function migrateState(state) {
   // v0.7.0 技能树
   if (!state.skillAlloc) state.skillAlloc = {};
 
+  // v0.8.0 LLM quip 缓冲
+  if (!Array.isArray(state.quipBuffer)) state.quipBuffer = [];
+
   return state;
 }
 

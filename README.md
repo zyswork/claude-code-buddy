@@ -128,6 +128,7 @@ git clone https://github.com/zyswork/claude-code-buddy.git ~/code/claude-buddy
 | `/claude-buddy:buddy-dex --detail <名字>` | 单只角色的详情页 |
 | `/claude-buddy:buddy-review [--staged \| HEAD~3]` | 让伙伴基于 git diff 评一下你的改动 |
 | `/claude-buddy:buddy-skill [属性 数量 \| reset]` | 技能树加点（每级 1 点）|
+| `/claude-buddy:buddy-voice` | 调试：看心情 + LLM 缓冲 + quip 来源 |
 
 > 所有 slash command 都用 `插件名:命令名` 的 namespace。这是 Claude Code 的机制，防止多插件命令互撞。
 

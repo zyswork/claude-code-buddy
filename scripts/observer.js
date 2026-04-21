@@ -3,8 +3,9 @@
 // v0.2：调 `claude -p` 让 Claude 本人基于伙伴的 personality 生成中文吐槽
 // 流量自动走你当前 Claude Code 的登录通道（包括 openclaw 代理等）
 
-const { spawnSync } = require('child_process');
+const { spawnSync, spawn } = require('child_process');
 const fs = require('fs');
+const path = require('path');
 const { roll, companionUserId } = require('./lib/roll.js');
 const { readState, updateState } = require('./lib/state.js');
 const { STAT_NAMES_CN } = require('./lib/types.js');
@@ -13,6 +14,8 @@ const {
 } = require('./lib/progression.js');
 const { runChecks } = require('./lib/progress-check.js');
 const { timeBasedQuip, trackNightVisit } = require('./lib/easter-eggs.js');
+const { readBuffer, takeBestMatch, needsRefill } = require('./lib/quip-buffer.js');
+const { computeMood } = require('./lib/mood.js');
 
 // 30% 概率才吐槽，避免刷屏
 const QUIP_PROBABILITY = 0.3;
@@ -51,6 +54,21 @@ function detectMood(hookInput) {
 function pickFallbackQuip(mood) {
   const pool = FALLBACK_QUIPS[mood] || FALLBACK_QUIPS.default;
   return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// 启动 detached 后台进程补充 buffer，不等它完成，不阻塞 Stop hook
+function triggerBackgroundRefill(mood) {
+  try {
+    const script = path.join(__dirname, 'refill-quips.js');
+    const child = spawn('node', [script, mood || 'default'], {
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env, NODE_OPTIONS: '', BUDDY_OBSERVER_DISABLE: '1' },
+    });
+    child.unref();
+  } catch (e) {
+    if (process.env.BUDDY_DEBUG) console.error('[observer] refill spawn failed', e);
+  }
 }
 
 // 用 `claude -p` 生成一句吐槽。流量走用户当前的 Claude Code 通道
@@ -140,11 +158,14 @@ function main() {
   // 升级/进化 强制吐槽（盖过 30% 门槛）
   if (reward.evolved) {
     quip = pickEvolutionQuip(reward.evolution);
+    statePatch.quipSource = 'evolve';
   } else if (reward.leveledUp) {
     quip = pickLevelUpQuip() + ' Lv' + reward.level;
+    statePatch.quipSource = 'levelup';
   } else if (shouldQuip) {
     const hookInput = readHookInput();
     const mood = detectMood(hookInput);
+    statePatch.lastMood = mood;
 
     // 时间/节日彩蛋优先：命中就不走 LLM，省成本也保特殊感
     const timeQuip = timeBasedQuip(state.soul, mood);
@@ -152,11 +173,27 @@ function main() {
       quip = timeQuip;
       statePatch.quipSource = 'timeEgg';
     } else {
-      const bones = roll(companionUserId());
-      const llmQuip = generateQuipViaClaude(state.soul, bones, mood);
-      quip = llmQuip || pickFallbackQuip(mood);
-      statePatch.lastMood = mood;
-      statePatch.quipSource = llmQuip ? 'claude' : 'fallback';
+      // ── 新路径：优先从 LLM 预生成缓冲里取 ──
+      const buffer = readBuffer(state);
+      const emotional = computeMood({ ...state, ...statePatch });
+      const picked = takeBestMatch(buffer, emotional);
+      if (picked.quip) {
+        quip = picked.quip;
+        statePatch.quipBuffer = picked.remaining;
+        statePatch.quipSource = 'buffer';
+      } else {
+        // 缓冲空：同步调一次 claude -p 作为救火，同时启动后台补
+        const bones = roll(companionUserId());
+        const llmQuip = generateQuipViaClaude(state.soul, bones, mood);
+        quip = llmQuip || pickFallbackQuip(mood);
+        statePatch.quipSource = llmQuip ? 'claude_sync' : 'fallback';
+      }
+    }
+
+    // 不管走哪条路，缓冲不足就 fire-and-forget 启动后台 refill
+    const afterBuffer = statePatch.quipBuffer ?? readBuffer(state);
+    if (needsRefill(afterBuffer)) {
+      triggerBackgroundRefill(emotional || mood);
     }
   }
 
