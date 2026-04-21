@@ -48,6 +48,10 @@ function migrateState(state) {
   // v0.4.0 对话历史
   if (!Array.isArray(state.chatHistory)) state.chatHistory = [];
 
+  // v0.5.0 墓地 + 每日任务
+  if (!Array.isArray(state.graveyard)) state.graveyard = [];
+  if (!state.daily) state.daily = { date: '', tasks: [], bonusClaimed: false };
+
   return state;
 }
 

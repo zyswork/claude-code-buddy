@@ -7,13 +7,37 @@
 
 const { roll, companionUserId } = require('./lib/roll.js');
 const { renderSprite, renderFace } = require('./lib/sprites.js');
-const { readState } = require('./lib/state.js');
+const { readState, updateState } = require('./lib/state.js');
 const { getCharacter, currentFormId } = require('./lib/characters.js');
 const { xpProgress, EVOLUTION_LABELS, computeEvolution } = require('./lib/progression.js');
 const {
   RARITY_STARS, RARITY_COLORS, STAT_NAMES, STAT_NAMES_CN,
   RESET_COLOR, BOLD,
 } = require('./lib/types.js');
+
+const EVOLUTION_BANNERS = {
+  1: [
+    '',
+    '   ✦ ═══════════════════════════════ ✦',
+    '              🌟 成年 EVOLUTION 🌟',
+    '   ✦ ═══════════════════════════════ ✦',
+    '',
+    '      你的伙伴长大了！',
+    '      它学会了新的表情，眼神变得更锐利。',
+    '',
+  ],
+  2: [
+    '',
+    '   ✨ ═══════════════════════════════ ✨',
+    '             ⚡ 进化态 ASCENSION ⚡',
+    '   ✨ ═══════════════════════════════ ✨',
+    '',
+    '      你们的羁绊达到顶峰！',
+    '      它完成了蜕变——变成另一种存在。',
+    '      /buddy-advice 已为你解锁。',
+    '',
+  ],
+};
 
 function padRight(s, width) {
   const len = [...s].length;
@@ -114,6 +138,15 @@ function main() {
     console.log('  你还没有伙伴。跑 /buddy 孵化一只。');
     console.log('');
     return;
+  }
+
+  // 进化庆祝横幅（仅在首次进化后的下一次 render 显示，之后就不再出现）
+  const prog = xpProgress(state.xp || 0);
+  const currentEvo = computeEvolution(prog.level, state.bond || 0);
+  const shown = state.lastShownEvolution || 0;
+  if (currentEvo > shown && EVOLUTION_BANNERS[currentEvo]) {
+    for (const line of EVOLUTION_BANNERS[currentEvo]) console.log(line);
+    updateState({ lastShownEvolution: currentEvo });
   }
 
   console.log(renderCard(bones, state.soul, state));

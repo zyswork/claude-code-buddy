@@ -42,6 +42,50 @@ const ACHIEVEMENTS = [
       return computeLevel(s.xp || 0) >= 2;
     },
   },
+
+  // ─── v0.5 扩展成就 ───
+  {
+    id: 'commit_centurion',
+    name: 'Commit 百人队长',
+    desc: '目睹 100 次 git commit',
+    check: (s) => (s.counters?.totalCommits || 0) >= 100,
+  },
+  {
+    id: 'apocalypse_survivor',
+    name: '末日幸存者',
+    desc: '目睹 10 次 rm -rf',
+    check: (s) => (s.counters?.rmRfSightings || 0) >= 10,
+  },
+  {
+    id: 'first_month',
+    name: '月光陪伴',
+    desc: '陪你满 30 天',
+    check: (s) => s.soul && (Date.now() - s.soul.hatchedAt) >= 30 * 86400000,
+  },
+  {
+    id: 'lv_10',
+    name: '修行者',
+    desc: '达到 Lv 10',
+    check: (s) => {
+      const { computeLevel } = require('./progression.js');
+      return computeLevel(s.xp || 0) >= 10;
+    },
+  },
+  {
+    id: 'evolved_1',
+    name: '成年礼',
+    desc: '进化到成年形态',
+    check: (s) => {
+      const { computeLevel, computeEvolution } = require('./progression.js');
+      return computeEvolution(computeLevel(s.xp || 0), s.bond || 0) >= 1;
+    },
+  },
+  {
+    id: 'hidden_collector',
+    name: '收集家',
+    desc: '解锁 3 只隐藏角色',
+    check: (s) => (s.unlocks || []).length >= 3,
+  },
 ];
 
 function getAchievement(id) {

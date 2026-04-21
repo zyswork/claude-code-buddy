@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "ASCII 桌面伙伴 — 孵化你的专属 Claude Code 宠物，中文吐槽，陪你写代码",
-    "version": "0.4.0"
+    "version": "0.5.0"
   },
   "plugins": [
     {
