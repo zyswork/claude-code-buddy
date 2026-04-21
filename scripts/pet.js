@@ -6,6 +6,7 @@ const {
   applyReward, pickLevelUpQuip, pickEvolutionQuip, xpProgress,
 } = require('./lib/progression.js');
 const { runChecks } = require('./lib/progress-check.js');
+const { emitEvent } = require('./lib/events.js');
 
 function main() {
   const state = readState();
@@ -21,6 +22,9 @@ function main() {
     petCount: (state.petCount || 0) + 1,
     petAt: Date.now(),
   };
+  emitEvent('pet', { petCount: patch.petCount, bond: patch.bond });
+  if (reward.leveledUp) emitEvent('levelup', { level: reward.level });
+  if (reward.evolved) emitEvent('evolve', { stage: reward.evolution });
 
   // 升级/进化会生成特殊 quip 立即显示
   if (reward.evolved) {

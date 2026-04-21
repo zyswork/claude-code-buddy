@@ -7,6 +7,7 @@ const fs = require('fs');
 const { readState, updateState } = require('./lib/state.js');
 const { applyReward } = require('./lib/progression.js');
 const { runChecks } = require('./lib/progress-check.js');
+const { emitEvent } = require('./lib/events.js');
 
 // 递归守卫（跟 observer 一样防止 claude -p 派生的进程污染）
 if (process.env.BUDDY_OBSERVER_DISABLE === '1') process.exit(0);
@@ -52,6 +53,11 @@ function main() {
   const counters = { ...state.counters };
   if (event === 'commit') counters.totalCommits = (counters.totalCommits || 0) + 1;
   if (event === 'rm_rf') counters.rmRfSightings = (counters.rmRfSightings || 0) + 1;
+
+  emitEvent(event === 'commit' ? 'bash_commit' : 'bash_rm_rf', {
+    command: String(toolInput.command || '').slice(0, 200),
+    cwd: process.cwd(),
+  });
 
   // 奖励 XP/bond
   const reward = applyReward(state, event);

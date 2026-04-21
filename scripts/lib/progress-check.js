@@ -4,6 +4,7 @@
 const { checkAll: checkAchievements, getAchievement } = require('./achievements.js');
 const { checkAll: checkUnlocks } = require('./unlocks.js');
 const { getCharacter } = require('./characters.js');
+const { emitEvent } = require('./events.js');
 
 // state 引用会被直接修改；调用方需要在最后调 writeState
 function runChecks(state) {
@@ -14,7 +15,10 @@ function runChecks(state) {
   for (const id of newAch) {
     state.achievements.push(id);
     const a = getAchievement(id);
-    if (a) notifications.push(`🏆 解锁成就：${a.name}`);
+    if (a) {
+      notifications.push(`🏆 解锁成就：${a.name}`);
+      emitEvent('achievement_unlocked', { id, name: a.name });
+    }
   }
 
   // 隐藏角色
@@ -22,8 +26,10 @@ function runChecks(state) {
   for (const id of newUnlocks) {
     state.unlocks.push(id);
     const c = getCharacter(id);
-    if (c) notifications.push(`✨ 发现 ${c.emoji} ${c.nameCn}！`);
-    // 特殊记录：妲己解锁时间戳（用于九尾狐仙的 30 天倒计时）
+    if (c) {
+      notifications.push(`✨ 发现 ${c.emoji} ${c.nameCn}！`);
+      emitEvent('character_unlocked', { id, nameCn: c.nameCn, pool: c.pool });
+    }
     if (id === 'daji') {
       state.hiddenProgress = { ...(state.hiddenProgress || {}), dajiUnlockedAt: Date.now() };
     }

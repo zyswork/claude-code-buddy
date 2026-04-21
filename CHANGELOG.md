@@ -1,5 +1,33 @@
 # 更新记录
 
+## v0.9.0 · 2026-04-21 — 事件总线 + 分析能力
+
+所有 hook 现在除了改 state 还额外往 `~/.claude/buddy-events.jsonl` 发事件，为未来分析/回放打基础。
+
+### 新基础设施
+
+- `lib/events.js` — append-only JSONL 事件日志（5MB 自动轮转）
+- 14 种事件类型：turn_end / pet / bash_commit / bash_rm_rf / debug_keyword / konami / rename / daily_login / greeting / achievement_unlocked / character_unlocked / levelup / evolve / night_visit
+
+### 所有 hook 加事件发射
+
+observer / preToolUse / userPromptSubmit / pet / rename / sessionStart / progress-check — 改 state 时同步发事件。不改变任何现有逻辑，纯加层。
+
+### 新命令
+
+- `/buddy-log [--type X --since 1h --limit N]` — 看最近事件流，支持过滤
+- `/buddy-stats` — 今日 / 本周 / 总计 三档事件计数，带 ASCII 条形图
+
+### 为什么
+
+未来想做：
+- **buddy 的智能反思**：让 buddy 读自己的事件日志，生成"本周观察"
+- **情绪趋势分析**：你什么时段最容易 rm -rf？commit 频率和时间段
+- **回放/重演**：从事件流重建任意时间点的 state 快照
+- **跨 session 因果分析**：是先出 bug 再被咖啡吵醒、还是先被咖啡吵醒才出 bug
+
+事件总线让这些都成为可能。
+
 ## v0.8.0 · 2026-04-21 — LLM 吐槽缓冲（让伙伴真会说话）
 
 旧版每次 Stop 都可能同步调 claude -p（8s 延迟），为了体验只给 30% 概率发声。新架构：**批量预生成 + 后台补充 + 缓冲即取**。

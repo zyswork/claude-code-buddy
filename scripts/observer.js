@@ -16,6 +16,7 @@ const { runChecks } = require('./lib/progress-check.js');
 const { timeBasedQuip, trackNightVisit } = require('./lib/easter-eggs.js');
 const { readBuffer, takeBestMatch, needsRefill } = require('./lib/quip-buffer.js');
 const { computeMood } = require('./lib/mood.js');
+const { emitEvent } = require('./lib/events.js');
 
 // 30% 概率才吐槽，避免刷屏
 const QUIP_PROBABILITY = 0.3;
@@ -135,11 +136,15 @@ function main() {
     bond: reward.bond,
     counters,
   };
+  emitEvent('turn_end', { xpGain: reward.xpDelta, totalTurns: counters.totalTurns });
+  if (reward.leveledUp) emitEvent('levelup', { level: reward.level });
+  if (reward.evolved) emitEvent('evolve', { stage: reward.evolution });
 
   // ── 深夜访问累计（烛龙解锁路径）──
   const stateForNight = { ...state, ...statePatch };
   if (trackNightVisit(stateForNight)) {
     statePatch.hiddenProgress = stateForNight.hiddenProgress;
+    emitEvent('night_visit', { count: stateForNight.hiddenProgress.nightVisits });
   }
 
   // ── 项目切换累计（刻耳柏洛斯解锁路径）──

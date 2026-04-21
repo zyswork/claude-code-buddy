@@ -10,6 +10,7 @@ const { readState, updateState } = require('./lib/state.js');
 const { applyReward } = require('./lib/progression.js');
 const { computeMood, MOODS } = require('./lib/mood.js');
 const { runChecks } = require('./lib/progress-check.js');
+const { emitEvent } = require('./lib/events.js');
 
 if (process.env.BUDDY_OBSERVER_DISABLE === '1') process.exit(0);
 
@@ -51,16 +52,18 @@ function main() {
     patch.xp = reward.xp;
     patch.bond = reward.bond;
     patch.counters = { ...state.counters, lastDailyLogin: today };
+    emitEvent('daily_login', { date: today });
   }
 
   // 主动问候（每日首次 session 且 quip 已过期）
   const quipAge = state.quipAt ? Date.now() - state.quipAt : Infinity;
-  const shouldGreet = isNewDay && quipAge > 60 * 60 * 1000;  // 至少 1 小时内没 quip
+  const shouldGreet = isNewDay && quipAge > 60 * 60 * 1000;
   if (shouldGreet) {
     const mood = computeMood({ ...state, ...patch });
     patch.quip = pickGreeting(mood);
     patch.quipAt = Date.now();
     patch.quipSource = 'greeting';
+    emitEvent('greeting', { mood, text: patch.quip });
   }
 
   if (Object.keys(patch).length === 0) return;

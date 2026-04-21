@@ -3,6 +3,7 @@
 
 const { readState, updateState } = require('./lib/state.js');
 const { runChecks } = require('./lib/progress-check.js');
+const { emitEvent } = require('./lib/events.js');
 
 function main() {
   const newName = process.argv.slice(2).join(' ').trim();
@@ -44,6 +45,7 @@ function main() {
   }
 
   updateState(patch);
+  emitEvent('rename', { from: oldName, to: newName, totalChanges: nameChanges });
 
   console.log(`  改名：${oldName} → ${newName}`);
   console.log(`  （累计改名 ${nameChanges} 次）`);

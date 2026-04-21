@@ -10,6 +10,7 @@ const { readState, updateState } = require('./lib/state.js');
 const { applyReward } = require('./lib/progression.js');
 const { runChecks } = require('./lib/progress-check.js');
 const { checkKonami } = require('./lib/easter-eggs.js');
+const { emitEvent } = require('./lib/events.js');
 
 if (process.env.BUDDY_OBSERVER_DISABLE === '1') process.exit(0);
 
@@ -38,6 +39,7 @@ function main() {
     patch.quip = konamiQuip;
     patch.quipAt = Date.now();
     patch.quipSource = 'konami';
+    emitEvent('konami', { prompt: prompt.slice(0, 100), response: konamiQuip });
   }
 
   // ── Debug 关键词 ──
@@ -48,6 +50,7 @@ function main() {
     const reward = applyReward(state, 'debug');
     patch.xp = reward.xp;
     patch.bond = reward.bond;
+    emitEvent('debug_keyword', { prompt: prompt.slice(0, 100), totalDebugs: counters.totalDebugs });
   }
 
   // ── 连续 debug streak（九头蛇解锁路径）──
