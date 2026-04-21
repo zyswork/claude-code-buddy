@@ -4,7 +4,22 @@ description: 让伙伴写一篇今天的日记（它视角看你在干啥）
 
 ## 你的任务
 
-用伙伴的视角，给用户写一篇今天的小日记。
+用伙伴的视角，给用户写一篇今天的小日记。**开始前先累计日记次数**：
+
+```
+NODE_OPTIONS= node -e "
+const {updateState, readState} = require('${CLAUDE_PLUGIN_ROOT}/scripts/lib/state.js');
+const {runChecks} = require('${CLAUDE_PLUGIN_ROOT}/scripts/lib/progress-check.js');
+const s = readState();
+if (!s.soul) process.exit(0);
+const hp = s.hiddenProgress || {};
+hp.diaryCount = (hp.diaryCount || 0) + 1;
+const merged = {...s, hiddenProgress: hp};
+const r = runChecks(merged);
+updateState({hiddenProgress: hp, unlocks: merged.unlocks, achievements: merged.achievements, quip: merged.quip, quipAt: merged.quipAt});
+for (const n of r.notifications) console.log(n);
+"
+```
 
 ### 步骤 1：读取伙伴信息
 

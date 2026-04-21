@@ -23,6 +23,10 @@ function runChecks(state) {
     state.unlocks.push(id);
     const c = getCharacter(id);
     if (c) notifications.push(`✨ 发现 ${c.emoji} ${c.nameCn}！`);
+    // 特殊记录：妲己解锁时间戳（用于九尾狐仙的 30 天倒计时）
+    if (id === 'daji') {
+      state.hiddenProgress = { ...(state.hiddenProgress || {}), dajiUnlockedAt: Date.now() };
+    }
   }
 
   // 如果有新通知，把最重要的一条塞进 quip（优先解锁 > 成就）

@@ -41,12 +41,20 @@ function main() {
   }
 
   // ── Debug 关键词 ──
-  if (DEBUG_KEYWORDS.test(prompt)) {
+  const isDebug = DEBUG_KEYWORDS.test(prompt);
+  if (isDebug) {
     const counters = { ...state.counters, totalDebugs: (state.counters?.totalDebugs || 0) + 1 };
     patch.counters = counters;
     const reward = applyReward(state, 'debug');
     patch.xp = reward.xp;
     patch.bond = reward.bond;
+  }
+
+  // ── 连续 debug streak（九头蛇解锁路径）──
+  const hp = state.hiddenProgress || {};
+  const nextStreak = isDebug ? (hp.debugStreak || 0) + 1 : 0;
+  if (nextStreak !== (hp.debugStreak || 0)) {
+    patch.hiddenProgress = { ...hp, debugStreak: nextStreak };
   }
 
   if (Object.keys(patch).length === 0) return;

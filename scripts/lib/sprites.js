@@ -133,6 +133,43 @@ const BODIES = {
     ['            ', '  /\\    /|  ', ' ( {E}    {E} ) ', '  \\  w  /   ', '  )))))))   '],
     ['    ~       ', '  /\\    /\\  ', ' ( {E}    {E} ) ', '  \\  w  /   ', ' ~)))))))   '],
   ],
+
+  // ─── v0.6.0 第二批隐藏角色 ───
+
+  // 凤凰 phoenix —— 不死火鸟
+  phoenix: [
+    ['            ', '    ({E}>     ', '   /===\\    ', '   (   )    ', '    vvv     '],
+    ['            ', '    ({E}>     ', '   /===\\    ', '   (   )    ', '    wVw     '],
+    ['    ^^      ', '    ({E}>     ', '   /===\\    ', '   (   )    ', '    vvv     '],
+  ],
+
+  // 三头犬 cerberus
+  cerberus: [
+    ['            ', '  ({E})({E})({E}) ', '   \\ | /    ', '    \\|/     ', '     \'      '],
+    ['            ', '  ({E})(-)({E}) ', '   \\ | /    ', '    \\|/     ', '     \'      '],
+    ['            ', '  ({E})({E})(-) ', '   \\ | /    ', '    \\|/     ', '     \'      '],
+  ],
+
+  // 九头蛇 hydra
+  hydra: [
+    ['            ', ' ({E}>({E}>({E}>  ', '  \\  |  /   ', '   \\_|_/    ', '    |||     '],
+    ['            ', ' ({E}>({E}>({E}>~ ', '  \\  |  /   ', '   \\_|_/    ', '    |||     '],
+    ['            ', ' ({E}>({E}>({E}>  ', '  \\  |  /   ', '   \\_|_/    ', '   ~|||~    '],
+  ],
+
+  // 九尾狐仙 jiuwei（比妲己更高阶的九尾仙）
+  jiuwei: [
+    ['            ', '  /\\    /\\  ', ' ( {E}    {E} ) ', '  \\ _- /    ', ' ~~~~~~~    '],
+    ['            ', '  /\\    /|  ', ' ( {E}    {E} ) ', '  \\ _- /    ', ' ~~~~~~~    '],
+    ['    ✦       ', '  /\\    /\\  ', ' ( {E}    {E} ) ', '  \\ _- /    ', '~~~~~~~~    '],
+  ],
+
+  // 河童 kappa
+  kappa: [
+    ['     o      ', '   __|__    ', '  ( {E}  {E} )  ', '   \\  _ /   ', '    | |     '],
+    ['     o      ', '   __|__    ', '  ( {E}  {E} )  ', '   \\ .. /   ', '    | |     '],
+    ['    ~o~     ', '   __|__    ', '  ( {E}  {E} )  ', '   \\  _ /   ', '    | |     '],
+  ],
 };
 
 const HAT_LINES = {
@@ -151,11 +188,20 @@ function renderSprite(bones, frame = 0) {
   const idx = frame % frames.length;
   const body = frames[idx].map((line) => line.replaceAll('{E}', bones.eye));
   const lines = [...body];
-  // 只在第 0 行是空行时替换成帽子（某些抖动帧会占用第 0 行画小星星等）
-  if (bones.hat !== 'none' && !lines[0].trim()) {
+  // 季节装饰优先于帽子：如果当天有节日，装饰行覆盖第 0 行
+  let seasonalDecor = null;
+  try {
+    const { currentOccasion } = require('./seasons.js');
+    const occ = currentOccasion();
+    if (occ && !bones.disableSeasonal) seasonalDecor = occ.decor;
+  } catch (_e) { /* seasons 模块可选 */ }
+
+  if (seasonalDecor && !lines[0].trim()) {
+    lines[0] = seasonalDecor;
+  } else if (bones.hat !== 'none' && !lines[0].trim()) {
     lines[0] = HAT_LINES[bones.hat];
   }
-  // 如果完全没有帽子，且所有帧的第 0 行都是空的，去掉这一行避免浪费空间
+  // 如果完全没有装饰/帽子，且所有帧第 0 行都空，去掉第 0 行
   if (!lines[0].trim() && frames.every((f) => !f[0].trim())) lines.shift();
   return lines;
 }
@@ -191,6 +237,11 @@ function renderFace(bones) {
     case 'jingwei':  return `(${e}>o`;
     case 'taotie':   return `/${e}V${e}\\`;
     case 'daji':     return `(${e}w${e})`;
+    case 'phoenix':  return `(${e}>~v`;
+    case 'cerberus': return `(${e})x3`;
+    case 'hydra':    return `(${e}>x3`;
+    case 'jiuwei':   return `(${e}✦${e})`;
+    case 'kappa':    return `[${e}o${e}]`;
     default:         return `(${e}${e})`;
   }
 }

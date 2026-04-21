@@ -1,7 +1,7 @@
 {
   "name": "claude-buddy",
   "description": "ASCII 桌面伙伴 — 孵化你的专属 Claude Code 宠物，中文吐槽，陪你写代码",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": {
     "name": "zyswork",
     "email": "zyswork123@gmail.com"
@@ -22,7 +22,8 @@
     "./commands/buddy-roast.md",
     "./commands/buddy-retire.md",
     "./commands/buddy-graveyard.md",
-    "./commands/buddy-daily.md"
+    "./commands/buddy-daily.md",
+    "./commands/buddy-teach.md"
   ],
   "license": "MIT",
   "keywords": ["buddy", "companion", "pet", "easter-egg", "chinese", "ascii"]

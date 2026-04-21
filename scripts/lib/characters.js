@@ -71,6 +71,34 @@ const CHARACTERS = {
     unlockHint: null,   // 不提示，保持神秘
     hidden: true,
   },
+
+  // ─── v0.6.0 第二批 ───
+  kappa: {
+    id: 'kappa', nameCn: '河童', emoji: '🐢', pool: 'spirit',
+    unlockHint: '写日记 3 次',
+    lore: '日本水妖，头顶水盘空了就会失去力量。传说会跟人比相扑——它让了九十九次。',
+  },
+  phoenix: {
+    id: 'phoenix', nameCn: '凤凰', emoji: '🔥', pool: 'beast',
+    unlockHint: 'buddy 退休后重新孵化（从灰烬中重生）',
+    lore: '涅槃之鸟。每一次"死亡"都是新生的开始。在你的墓地里留下羽毛。',
+  },
+  cerberus: {
+    id: 'cerberus', nameCn: '刻耳柏洛斯', emoji: '🐕', pool: 'beast',
+    unlockHint: '在 3 个不同项目间切换',
+    lore: '冥府看门犬。三个头永远吵不休——一个守纪律、一个要摸摸、一个只想睡觉。',
+  },
+  hydra: {
+    id: 'hydra', nameCn: '九头蛇', emoji: '🐍', pool: 'divine',
+    unlockHint: '连续 3 轮出错（bug 越修越多）',
+    lore: '你斩下一个头它长出两个。每次测试失败它都会长新的头。',
+  },
+  jiuwei: {
+    id: 'jiuwei', nameCn: '九尾狐仙', emoji: '✨', pool: 'myth',
+    unlockHint: '与妲己同伴相处 30 天后修成',
+    lore: '狐修千年成仙。比妲己高一层境界——不再说谎，改说禅。',
+    hidden: true,
+  },
 };
 
 function getCharacter(id) {

@@ -124,6 +124,8 @@ git clone https://github.com/zyswork/claude-code-buddy.git ~/code/claude-buddy
 | `/claude-buddy:buddy-daily [claim]` | 今日 3 个小任务，全部完成 +50 XP |
 | `/claude-buddy:buddy-retire [confirm]` | 送 Lv 99 的伙伴退休，存入墓地 |
 | `/claude-buddy:buddy-graveyard` | 查看墓地纪念所有退休伙伴 |
+| `/claude-buddy:buddy-teach "事实"` | 教伙伴记住一件事（最多 10 条）|
+| `/claude-buddy:buddy-dex --detail <名字>` | 单只角色的详情页 |
 
 > 所有 slash command 都用 `插件名:命令名` 的 namespace。这是 Claude Code 的机制，防止多插件命令互撞。
 

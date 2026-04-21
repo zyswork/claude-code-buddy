@@ -49,8 +49,61 @@ const UNLOCK_RULES = {
     progress: (s) => ({
       current: s.hiddenProgress?.nameChanges || 0,
       target: 9,
-      label: '???',  // 不明示条件
+      label: '???',
     }),
+    hidden: true,
+  },
+
+  // ─── v0.6.0 第二批 ───
+  kappa: {
+    check: (s) => (s.hiddenProgress?.diaryCount || 0) >= 3,
+    progress: (s) => ({
+      current: s.hiddenProgress?.diaryCount || 0,
+      target: 3,
+      label: '写日记次数',
+    }),
+  },
+  phoenix: {
+    // 退休过至少一次 = 墓地有记录，然后重新孵化
+    check: (s) => (s.graveyard?.length || 0) >= 1 && !!s.soul,
+    progress: (s) => ({
+      current: (s.graveyard?.length || 0) > 0 && s.soul ? 1 : 0,
+      target: 1,
+      label: '墓地 + 新伙伴（浴火重生）',
+    }),
+  },
+  cerberus: {
+    check: (s) => (s.hiddenProgress?.projectsSeen?.length || 0) >= 3,
+    progress: (s) => ({
+      current: (s.hiddenProgress?.projectsSeen || []).length,
+      target: 3,
+      label: '不同项目切换',
+    }),
+  },
+  hydra: {
+    check: (s) => (s.hiddenProgress?.debugStreak || 0) >= 3,
+    progress: (s) => ({
+      current: s.hiddenProgress?.debugStreak || 0,
+      target: 3,
+      label: '连续 debug 轮数',
+    }),
+  },
+  jiuwei: {
+    // 必须先解锁妲己，且妲己解锁后过了 30 天
+    check: (s) => {
+      if (!s.unlocks?.includes('daji')) return false;
+      const dajiAt = s.hiddenProgress?.dajiUnlockedAt;
+      if (!dajiAt) return false;
+      return (Date.now() - dajiAt) >= 30 * 86400000;
+    },
+    progress: (s) => {
+      const dajiAt = s.hiddenProgress?.dajiUnlockedAt;
+      if (!s.unlocks?.includes('daji') || !dajiAt) {
+        return { current: 0, target: 1, label: '???' };
+      }
+      const days = Math.floor((Date.now() - dajiAt) / 86400000);
+      return { current: days, target: 30, label: '???' };
+    },
     hidden: true,
   },
 };

@@ -124,6 +124,15 @@ function main() {
     statePatch.hiddenProgress = stateForNight.hiddenProgress;
   }
 
+  // ── 项目切换累计（刻耳柏洛斯解锁路径）──
+  const cwd = process.cwd();
+  const hp2 = statePatch.hiddenProgress || state.hiddenProgress || {};
+  const seen = Array.isArray(hp2.projectsSeen) ? hp2.projectsSeen : [];
+  if (cwd && !seen.includes(cwd)) {
+    const newSeen = [...seen, cwd].slice(-10); // 最多存 10 个
+    statePatch.hiddenProgress = { ...hp2, projectsSeen: newSeen };
+  }
+
   // ── 是否吐槽 ──
   const shouldQuip = Math.random() < QUIP_PROBABILITY;
   let quip = null;
