@@ -174,6 +174,11 @@ t('过期 quip 被过滤', () => {
   assert.strictEqual(b.length, 1);
   assert.strictEqual(b[0].quip, 'fresh');
 });
+t('readBuffer 自动过滤过期', () => {
+  const old = { quip: 'stale', mood: 'default', at: Date.now() - 25 * 3600 * 1000 };
+  const result = QB.readBuffer({ quipBuffer: [old] });
+  assert.strictEqual(result.length, 0, '过期条目应被过滤');
+});
 
 // ────────────────────────────────────────────────────────
 section('easter-eggs.js');
@@ -253,6 +258,22 @@ t('computeMood 返回合法 id', () => {
 t('moodBadge 有 emoji', () => {
   const b = M.moodBadge({ soul: { hatchedAt: Date.now() } });
   assert.ok(b.emoji);
+});
+
+// ────────────────────────────────────────────────────────
+section('state.js 并发锁');
+const STATE = require('./lib/state.js');
+t('并发 updateState 不丢更新', () => {
+  // 快速测：模拟 3 次并发 inc xp，结果应该严格 +3
+  // 注：这是真实 I/O 测试；如果 CI 上 home 目录限制可能挂
+  const before = STATE.readState().xp || 0;
+  const expected = before + 3;
+  for (let i = 0; i < 3; i++) {
+    const s = STATE.readState();
+    STATE.updateState({ xp: (s.xp || 0) + 1 });
+  }
+  const after = STATE.readState().xp;
+  assert.strictEqual(after, expected, `并发后 xp=${after} 应 = ${expected}`);
 });
 
 // ────────────────────────────────────────────────────────

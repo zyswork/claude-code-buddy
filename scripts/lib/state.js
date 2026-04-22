@@ -6,10 +6,47 @@ const os = require('os');
 const path = require('path');
 
 const STATE_PATH = path.join(os.homedir(), '.claude', 'buddy-state.json');
+const LOCK_PATH = STATE_PATH + '.lock';
+const LOCK_STALE_MS = 5000;       // 锁文件超过 5s 视为陈旧
+const LOCK_RETRY_MS = 10;         // 忙等轮询间隔
+const LOCK_MAX_ATTEMPTS = 100;    // 最多等 1s
 
 function ensureDir() {
   const dir = path.dirname(STATE_PATH);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+}
+
+// 简易文件锁：防止 observer 和 detached refill 并发 read-modify-write 冲突
+// 陈旧锁（>5s）自动清除，避免崩溃进程留下死锁
+function withLock(fn) {
+  ensureDir();
+  for (let i = 0; i < LOCK_MAX_ATTEMPTS; i++) {
+    try {
+      const fd = fs.openSync(LOCK_PATH, 'wx');  // exclusive create
+      try {
+        return fn();
+      } finally {
+        try { fs.closeSync(fd); } catch (_e) {}
+        try { fs.unlinkSync(LOCK_PATH); } catch (_e) {}
+      }
+    } catch (e) {
+      if (e.code !== 'EEXIST') throw e;
+      // 检查陈旧锁
+      try {
+        const st = fs.statSync(LOCK_PATH);
+        if (Date.now() - st.mtimeMs > LOCK_STALE_MS) {
+          fs.unlinkSync(LOCK_PATH);
+          continue;
+        }
+      } catch (_e) { /* 锁文件在我们看的一瞬间就没了，继续重试 */ }
+      // 忙等
+      const end = Date.now() + LOCK_RETRY_MS;
+      while (Date.now() < end) { /* busy wait */ }
+    }
+  }
+  // 获锁失败：为了不阻断主流程，降级执行（可能造成单次丢失）
+  if (process.env.BUDDY_DEBUG) console.error('[state] lock timeout, fallback');
+  return fn();
 }
 
 function readState() {
@@ -70,10 +107,13 @@ function writeState(state) {
 }
 
 function updateState(patch) {
-  const cur = readState();
-  const next = { ...cur, ...patch };
-  writeState(next);
-  return next;
+  // 加锁保护：整个 read-modify-write 原子化
+  return withLock(() => {
+    const cur = readState();
+    const next = { ...cur, ...patch };
+    writeState(next);
+    return next;
+  });
 }
 
 module.exports = { readState, writeState, updateState, STATE_PATH };

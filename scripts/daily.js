@@ -8,6 +8,7 @@
 const { readState, updateState } = require('./lib/state.js');
 const { applyReward } = require('./lib/progression.js');
 const { runChecks } = require('./lib/progress-check.js');
+const { mulberry32, hashString } = require('./lib/roll.js');
 
 const TASK_POOL = [
   { id: 'pet_once',      label: '摸一下伙伴',       check: (s, snap) => (s.petCount || 0) > snap.petCount },
@@ -33,16 +34,12 @@ function snapshotState(s) {
 }
 
 function pickThreeTasks(seedStr) {
-  // 用日期 + userId 当种子，每天一样但人人不同
-  let h = 0;
-  for (let i = 0; i < seedStr.length; i++) {
-    h = (h * 31 + seedStr.charCodeAt(i)) >>> 0;
-  }
+  // 用日期 + userId 当种子，mulberry32 保证每天稳定、人人不同、种子为 0 也安全
+  const rng = mulberry32(hashString(seedStr || 'anon-default-seed'));
   const pool = [...TASK_POOL];
   const picked = [];
-  for (let i = 0; i < 3; i++) {
-    const idx = h % pool.length;
-    h = Math.floor(h / pool.length) || (h * 17) >>> 0;
+  for (let i = 0; i < 3 && pool.length > 0; i++) {
+    const idx = Math.floor(rng() * pool.length);
     picked.push(pool[idx]);
     pool.splice(idx, 1);
   }

@@ -145,7 +145,8 @@
 ## 终端快捷键
 
 ```bash
-bash ~/.claude/plugins/cache/claude-code-buddy/claude-buddy/1.0.0/scripts/setup-alias.sh
+# 动态找到插件安装目录（版本无关）
+bash "$(find ~/.claude/plugins/cache/claude-code-buddy -name setup-alias.sh -type f | head -1)"
 source ~/.zshrc
 
 bd "今天累死了"     # 在普通终端直接跟伙伴聊
