@@ -171,6 +171,8 @@ function main() {
     const hookInput = readHookInput();
     const mood = detectMood(hookInput);
     statePatch.lastMood = mood;
+    // 提前算情绪，所有分支和 refill 都要用
+    const emotional = computeMood({ ...state, ...statePatch });
 
     // 时间/节日彩蛋优先：命中就不走 LLM，省成本也保特殊感
     const timeQuip = timeBasedQuip(state.soul, mood);
@@ -180,7 +182,6 @@ function main() {
     } else {
       // ── 新路径：优先从 LLM 预生成缓冲里取 ──
       const buffer = readBuffer(state);
-      const emotional = computeMood({ ...state, ...statePatch });
       const picked = takeBestMatch(buffer, emotional);
       if (picked.quip) {
         quip = picked.quip;

@@ -9,13 +9,15 @@ const MAX_BUFFER = 6;
 const MIN_BUFFER_BEFORE_REFILL = 3;
 const QUIP_TTL_MS = 24 * 3600 * 1000; // 24 小时
 
-function readBuffer(state) {
-  return Array.isArray(state.quipBuffer) ? state.quipBuffer : [];
-}
-
 function isFresh(entry) {
   if (!entry || !entry.at) return false;
   return Date.now() - entry.at < QUIP_TTL_MS;
+}
+
+function readBuffer(state) {
+  // 读取时自动过滤过期条目，保证调用方看到的总是"新鲜"缓冲
+  const raw = Array.isArray(state.quipBuffer) ? state.quipBuffer : [];
+  return raw.filter(isFresh);
 }
 
 // 取一条最合适当前 mood 的 quip，找不到就退化到任意新鲜 quip
